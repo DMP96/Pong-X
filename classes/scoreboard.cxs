@@ -1,0 +1,22 @@
+Import mojo2
+Import paddle
+
+Class Scoreboard
+    Field scores:StringMap<Int>
+
+    Method New()
+        scores = New StringMap<Int>
+    End Method
+
+    Method AddPaddle(paddle:Paddle)
+        scores.Add(paddle.name, 0)
+    End Method
+
+    Method IncreaseScore(player:Paddle)
+        scores.Set(player.name, scores.Get(player.name) + 1)
+    End Method
+
+    Method GetScore(player:Paddle)
+        Return scores.Get(player.name)
+    End Method
+End Class

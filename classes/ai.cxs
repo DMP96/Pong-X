@@ -1,0 +1,33 @@
+Import paddle
+Import ball
+
+Class AI
+    Field paddle:Paddle
+
+    Method New(p:Paddle)
+        paddle = p
+    End Method
+    
+    Method Follow(ball:Ball)
+        ' Calculate time for the ball to reach the paddle's x-coordinate
+        Local timeToIntercept:Float = (paddle.xPos - ball.xPos) / ball.speedX
+        
+        ' Calculate predicted y-coordinate of the ball when it reaches the paddle's x-coordinate
+        Local predictedY:Int = ball.yPos + Int(ball.speedY * timeToIntercept)
+        
+        ' Adjust predicted y-coordinate to ensure it stays within the screen boundaries
+        predictedY = Max(Min(predictedY, DeviceHeight() - ball.size), 0)
+        
+        ' Define a margin of error
+        Local marginOfError:Int = (paddle.height / 4) ' Adjust this value as needed
+        
+        ' Move the paddle towards the predicted y-coordinate only if the difference exceeds the margin of error
+        If Abs(paddle.yPos + paddle.height / 2 - predictedY) > marginOfError Then
+            If paddle.yPos + paddle.height / 2 < predictedY Then
+                paddle.yPos = Min(paddle.yPos + paddle.speed, DeviceHeight() - paddle.height)
+            ElseIf paddle.yPos + paddle.height / 2 > predictedY Then
+                paddle.yPos = Max(paddle.yPos - paddle.speed, 0)
+            End If
+        End If
+    End Method
+End Class

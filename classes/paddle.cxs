@@ -1,0 +1,41 @@
+Import mojo2
+
+Class Paddle
+    Field xPos:Int
+    Field yPos:Int
+    Field height:Int
+    Field width:Int
+    Field color:Float[]
+    Field speed:Int
+    Field keyUp:Int
+    Field keyDown:Int
+    Field name:String
+
+    Method New(x:Int, y:Int, h:Int, w:Int, c:Float[], s:Int, up:Int, down:Int, n:String)
+        xPos = x
+        yPos = y
+        height = h
+        width = w
+        color = c
+        speed = s
+        keyUp = up
+        keyDown = down
+        name = n
+    End Method
+    
+    Method Move()
+	    If KeyDown(keyUp) Then
+	        ' Move up only if it doesn't exceed the top boundary
+	        If yPos - speed >= 0 Then
+	            yPos = yPos - speed
+	        End If
+	    End If
+	    
+	    If KeyDown(keyDown) Then
+	        ' Move down only if it doesn't exceed the bottom boundary
+	        If yPos + height + speed <= DeviceHeight() Then
+	            yPos = yPos + speed
+	        End If
+	    End If
+	End Method
+End Class

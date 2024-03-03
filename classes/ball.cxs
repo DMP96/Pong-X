@@ -1,0 +1,71 @@
+Import paddle
+
+Class Ball
+    Field xPos:Int
+    Field yPos:Int
+    Field size:Int
+    Field color:Float[]
+    Field speedX:Float
+    Field speedY:Float
+    Field minSpeed:Float
+    Field maxSpeed:Float
+	
+    Method New(x:Int, y:Int, sz:Int, c:Float[], s:Float, min:Float, max:Float)
+        xPos = x
+        yPos = y
+        size = sz
+        color = c
+        speedX = s
+        speedY = s
+        minSpeed = min
+        maxSpeed = max
+    End Method
+    
+    Method Move()
+        xPos = xPos + speedX
+        yPos = yPos + speedY
+        
+        ' Bounce off the top and bottom of the screen
+        If yPos < 0 Or yPos + size > DeviceHeight() Then
+            speedY = -speedY
+        End If
+    
+	    ' Bounce off the left and right walls
+	    If xPos < 0 Or xPos + size > DeviceWidth() Then
+	    	speedX = -speedX
+	    	
+	    	If Abs(speedX) > minSpeed Then
+		    	speedX *= 0.9 ' Lowers speed by 10%
+		    End If
+		    If Abs(speedY) > minSpeed Then
+		    	speedY *= 0.9 ' Lowers speed by 10%
+		    End If
+        End If
+    End Method
+    
+    Method CollidesWith(paddle:Paddle)
+        If xPos < paddle.xPos + paddle.width And xPos + size > paddle.xPos And yPos < paddle.yPos + paddle.height And yPos + size > paddle.yPos Then
+            ' Adjust ball position to prevent sticking
+	        If speedX > 0 Then
+	            xPos = paddle.xPos - size
+	        Else
+	            xPos = paddle.xPos + paddle.width
+	        End If
+            
+            speedX = -speedX * 1.1 ' Increase speed by 10%
+            
+            ' Limit the speed to a maximum value
+	        If Abs(speedX) > maxSpeed Then
+	            speedX = maxSpeed * Sgn(speedX)
+	        End If
+            
+			' Increase speedY at every paddle hit
+        	speedY = -speedY * 1.1 ' Increase speed by 10%
+
+			' Ensure the speed doesn't exceed certain limits
+			If Abs(speedY) > maxSpeed Then
+			    speedY = maxSpeed * Sgn(speedY)
+			End If
+        End If
+    End Method
+End Class

@@ -1,0 +1,97 @@
+Import mojo2
+Import classes.paddle
+Import classes.ball
+Import classes.scoreboard
+Import classes.ai
+
+Class Game Extends App
+	Field gameCanvas:Canvas
+	Field defaultFont:Font
+	
+	Field paddle1:Paddle
+	Field paddle2:Paddle
+	Field ball:Ball
+    Field scoreboard:Scoreboard
+    Field ai:AI
+
+    Method OnCreate()
+	    Seed = Millisecs()
+	    gameCanvas = New Canvas
+	    SetUpdateRate 0
+	    
+	    defaultFont=Font.Load("font.png", 32, 96 , True)
+		If Not defaultFont Error "Can't load default font"
+	    
+	    ' Create paddles
+	    paddle1 = New Paddle(0, (DeviceHeight() - 50) / 2, 50, 10, [1.0, 1.0, 1.0, 1.0], 5, KEY_W, KEY_S, "player1")
+	    paddle2 = New Paddle(DeviceWidth() - 10, (DeviceHeight() - 50) / 2, 50, 10, [1.0, 0.0, 0.0, 1.0], 5, KEY_UP, KEY_DOWN, "player2")
+	    
+	    ' Create ball
+		ball = New Ball(DeviceWidth() / 2, DeviceHeight() / 2, 10, [1.0, 1.0, 1.0, 1.0], -2, 2, 15)
+		
+		' Create scoreboard
+		scoreboard = New Scoreboard()
+		scoreboard.AddPaddle(paddle1)
+		scoreboard.AddPaddle(paddle2)
+		
+		' Create AI
+		ai = New AI(paddle2)
+	End Method
+    
+    Method OnUpdate() ' This method is used to update the game’s state
+        ' Update paddles
+        paddle1.Move()
+        ai.Follow(ball)
+
+        ' Update the ball and check for collisions
+        ball.Move()
+        ball.CollidesWith(paddle1)
+        ball.CollidesWith(paddle2)
+
+        ' Check for score
+        If ball.xPos < 0 Then
+            scoreboard.IncreaseScore(paddle2)
+        ElseIf ball.xPos + ball.size > DeviceWidth() Then
+            scoreboard.IncreaseScore(paddle1)
+        End If
+    End Method
+    
+    Method OnRender() ' This method is used to draw the game’s current state to the screen
+    	gameCanvas.Clear(0, 0, 0)
+    	
+    	DrawScore()
+    	
+    	DrawPaddle(paddle1)
+    	DrawPaddle(paddle2)
+    	DrawBall(ball)
+    	
+    	gameCanvas.Flush
+    End Method
+    
+    Method DrawPaddle(paddle:Paddle) 
+    	gameCanvas.SetColor(paddle.color[0], paddle.color[1], paddle.color[2], 1.0)
+		gameCanvas.DrawRect(paddle.xPos, paddle.yPos, paddle.width, paddle.height)
+		gameCanvas.SetColor(1.0, 1.0, 1.0, 1.0)
+    End Method
+    
+    Method DrawBall(ball:Ball) 
+	    gameCanvas.SetColor(ball.color[0], ball.color[1], ball.color[2], 1.0)
+	    gameCanvas.DrawOval(ball.xPos, ball.yPos, ball.size, ball.size)
+	    gameCanvas.SetColor(1.0, 1.0, 1.0, 1.0)
+	End Method
+	
+	Method DrawScore()
+	    Local score:String = scoreboard.GetScore(paddle1) + ":" + scoreboard.GetScore(paddle2)
+		
+		Local xPos:Float = DeviceWidth() / 2.0 - defaultFont.TextWidth(score) / 2.0
+		Local yPos:Float = DeviceHeight() / 4.0 - defaultFont.TextHeight(score) / 2.0
+		
+		gameCanvas.SetColor(0.0, 1.0, 0.0, 1.0)
+		gameCanvas.DrawText(score, xPos, yPos)
+		gameCanvas.SetColor(1.0, 1.0, 1.0, 1.0)
+	End Method
+End Class
+
+Function Main()
+	New Game
+End Function
